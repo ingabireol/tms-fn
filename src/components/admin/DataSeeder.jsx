@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import axios from 'axios';
 import Button from '@components/common/Button';
 import { useToast } from '@contexts/ToastContext';
+import apiClient from '@api/client';
 import { 
   PlusCircleIcon, 
   FilmIcon, 
@@ -35,7 +35,7 @@ const DataSeeder = () => {
     setIsLoading(prev => ({ ...prev, [type]: true }));
     
     try {
-      const response = await axios.post(`/api/seed/${endpoint}`);
+      const response = await apiClient.post(`/seed/${endpoint}`);
       
       if (response.data.success) {
         showSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} seeded successfully!`);
