@@ -303,8 +303,8 @@ const bookingApi = {
       
       // Normalize data based on what the API expects
       const bookingData = {
-        screeningId,
-        bookedSeats: selectedSeats, // API might expect 'bookedSeats' instead of 'selectedSeats'
+        screeningId: parseInt(screeningId, 10),
+        bookedSeats: selectedSeats,
         paymentMethod
       };
       

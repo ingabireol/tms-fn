@@ -5,10 +5,10 @@ import useResponsive from '@hooks/useResponsive';
 import GlobalSearch from '@components/common/GlobalSearch';
 
 // Icons
-import { 
+import {
   ChartBarIcon,
-  FilmIcon, 
-  TicketIcon, 
+  FilmIcon,
+  TicketIcon,
   UsersIcon,
   BuildingStorefrontIcon,
   CalendarIcon,
@@ -16,7 +16,8 @@ import {
   XMarkIcon,
   ArrowLeftOnRectangleIcon,
   HomeIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  DocumentChartBarIcon
 } from '@heroicons/react/24/outline';
 
 const AdminLayout = () => {
@@ -52,6 +53,7 @@ const AdminLayout = () => {
     { name: 'Theatres', to: '/admin/theatres', icon: <BuildingStorefrontIcon className="w-5 h-5" /> },
     { name: 'Screenings', to: '/admin/screenings', icon: <CalendarIcon className="w-5 h-5" /> },
     { name: 'Bookings', to: '/admin/bookings', icon: <TicketIcon className="w-5 h-5" /> },
+    { name: 'Reports', to: '/admin/reports', icon: <DocumentChartBarIcon className="w-5 h-5" /> },
   ];
 
   // Add Users menu item only for admin users

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@contexts/AuthContext';
 import { useBookings } from '@hooks/useBookings';
@@ -8,6 +8,12 @@ import { useGetAllUsers } from '@hooks/useUsers';
 import { formatDate, formatCurrency } from '@utils/formatUtils';
 import LoadingSpinner from '@components/common/LoadingSpinner';
 import DataSeeder from '@components/admin/DataSeeder';
+import {
+  ResponsiveContainer,
+  LineChart, Line,
+  BarChart, Bar,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend
+} from 'recharts';
 import {
 UserIcon,
 FilmIcon,
@@ -152,6 +158,39 @@ const getPopularMovies = () => {
 };
 
 const popularMovies = getPopularMovies();
+
+// Chart data: bookings per day (last 7 days)
+const bookingsPerDay = useMemo(() => {
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().split('T')[0];
+  });
+  return days.map(day => ({
+    date: day.slice(5),
+    bookings: Array.isArray(bookingsData)
+      ? bookingsData.filter(b => {
+          const bd = new Date(b.bookingTime || b.createdAt || 0).toISOString().split('T')[0];
+          return bd === day;
+        }).length
+      : 0
+  }));
+}, [bookingsData]);
+
+// Chart data: revenue by movie (top 5)
+const revenueByMovie = useMemo(() => {
+  if (!Array.isArray(bookingsData) || bookingsData.length === 0) return [];
+  const totals = bookingsData.reduce((acc, b) => {
+    if (b.paymentStatus === 'COMPLETED' && b.movieTitle) {
+      acc[b.movieTitle] = (acc[b.movieTitle] || 0) + (b.totalAmount || 0);
+    }
+    return acc;
+  }, {});
+  return Object.entries(totals)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, revenue]) => ({ name: name.length > 15 ? name.slice(0, 14) + '…' : name, revenue: Math.round(revenue * 100) / 100 }));
+}, [bookingsData]);
 
 // Loading state
 if (isLoading) {
@@ -301,14 +340,21 @@ return (
         </div>
       </div>
       
-      {/* Chart Placeholder */}
-      <div className="h-48 bg-gray-100 rounded-lg mt-6 flex items-center justify-center">
-        <div className="text-center">
-          <ChartBarIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-          <span className="text-gray-500">Booking Trends Chart</span>
-          <p className="text-xs text-gray-400 mt-1">Chart visualization coming soon</p>
+      {/* Bookings per day — line chart */}
+      {bookingsPerDay.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-sm font-medium text-gray-700 mb-3">Bookings — Last 7 Days</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={bookingsPerDay} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Line type="monotone" dataKey="bookings" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} name="Bookings" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-      </div>
+      )}
     </div>
     
     {/* Recent Bookings & Popular Movies */}
@@ -422,6 +468,22 @@ return (
       </div>
     </div>
     
+    {/* Revenue by Movie chart */}
+    {revenueByMovie.length > 0 && (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Revenue by Movie (Top 5)</h2>
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={revenueByMovie} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `$${v}`} />
+            <Tooltip formatter={v => [`$${v}`, 'Revenue']} />
+            <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Revenue ($)" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )}
+
     {/* Data Seeder Component for Development */}
     {process.env.NODE_ENV === 'development' && (
       <div className="mb-8">

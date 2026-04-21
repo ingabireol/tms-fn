@@ -60,6 +60,9 @@ import AdminScreeningsViewPage from '@pages/admin/Screenings/View';
 // Admin Bookings Pages
 import AdminBookingsPage from '@pages/admin/Bookings';
 
+// Admin Reports Page
+import AdminReportsPage from '@pages/admin/Reports';
+
 // Admin Users Pages
 import { 
   UserList as AdminUsersPage,
@@ -177,6 +180,9 @@ const router = createBrowserRouter([
       
       // Booking management routes
       { path: 'bookings', element: <AdminBookingsPage /> },
+
+      // Reports
+      { path: 'reports', element: <AdminReportsPage /> },
       
       // User management routes
       { 
