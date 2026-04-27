@@ -4,8 +4,7 @@ import axios from 'axios';
  * Axios instance configured for the Theatre Management System API
  */
 const apiClient = axios.create({
-  // Use relative URL instead of full URL with hostname
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
